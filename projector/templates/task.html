@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load safe_html %}
+
+{% block sidebar%}
+    {{ block.super }}
+    <div><a class="button radius expand" href="/projector/project/{{ project.id }}/">Back</a></div>
+    <div><a class="button radius expand" href="/projector/create_subtask/{{ task.id }}/">Create subtask</a></div>
+{% endblock %}
+
+{% block content %}
+    <h2>Project: <a href="/projector/project/{{ project.id }}/">{{ project.name }}</a></h2>
+    <h2>Task: {{ task.name }}</h2>
+<div>
+    <p>Creator: {{ task.creator }}</p>
+    <p>Created: {{ task.create_date }} </p>
+    <p>Started: {{ task.start_date }}</p>
+    <p>Status: {{task.status }}</p>
+    <p>Parent task: {{ task.parent_task.name }}</p>
+    <p>Subtask: {{ task.subtask }}</p>
+    <p>Finished: {{ task.finish_date }} </p>
+    <p>Expected time:{{ task.expected_time }} </p>
+    <p>Real time: {{ real_time }}</p>
+    <p>Workers: {{ task.workers.count }}:
+        {% for worker in task.workers.all %}
+            {{ worker }}
+        {% endfor %}
+    </p>
+    <hr>
+    <div class="block-grid-parent">
+        {% if username %}
+            {% ifnotequal task.status 'Finished' %}
+
+                {% if not my_task %}
+
+                    <li><a class="button" href="/projector/task_accept/{{ task.id }}/">Accept</a></li>
+                {% else %}
+
+                    <li><a class="button" href="/projector/task_stop/{{ task.id }}/">Stop</a></li>
+                    <li><a class="button" href="/projector/task_done/{{ task.id }}/">Done</a></li>
+                {% endif %}
+            {% endifnotequal %}
+            {% if creator  %}
+                <li><a class="button" href="/projector/task_return/{{ task.id }}/">Return</a></li>
+                <li><a class="button" href="/projector/task_edit/{{ task.id }}/">Edit</a></li>
+
+            {% endif %}
+            {% ifnotequal task.status 'Finished' %}
+                    <li><a class="button" href="/projector/task_finish/{{ task.id }}/">Finish</a></li>
+            {% endifnotequal %}
+         <li><a class="button" href="/projector/task_comment/{{ task.id }}/">Comment</a></li>
+        {% endif %}
+    </div>
+    <hr>
+</div>
+<div>
+    {% if task.taskcomment_set.all %}
+        comments:
+        <br>
+    {% for comment in task.taskcomment_set.all %}
+        {{ username }} at {{ comment.date }}
+        <div>
+            {{ comment.comment|unscript|safe }}
+        </div>
+        <div>{{ comment.file }}</div>
+        <hr>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

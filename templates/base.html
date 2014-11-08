@@ -1,0 +1,51 @@
+{% load staticfiles %}
+<!doctype html>
+<html itemscope="" itemtype="http://schema.org/WebPage" lang="en-RU">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href = {% static "css/foundation.css" %}>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+        <script src="/static/js/jquery-1.11.1.min.js"></script>
+        <link rel="stylesheet" href="{% static "redactor/css/redactor.css" %}" />
+        <script src="{% static "redactor/redactor.js" %}"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+
+    </head>
+    <body>
+        <div class="top-bar">
+            <section class="top-bar-section">
+                <ul class="right">
+                    {% if username %}
+                        <li><a href="/auth/logout/">Logout ({{ username }})</a></li>
+                    {% else %}
+                        <li><a href="/auth/login/">Login</a></li>
+                    {% endif %}
+                </ul>
+            </section>
+         </div>
+        <div class="columns"><h1>TOLK</h1></div>
+        <div class="page">
+            <div class="large-2 columns">
+                <div class="sidebar">
+                    {% block sidebar%}
+                        <div><a class="button radius expand" href="/projector/all">All projects</a></div>
+                        <div><a class="button radius expand" href="/projector/all_tasks">All tasks</a></div>
+                        {% if username %}
+                            <div><a class="button radius expand" href="/projector/my_projects">My projects</a></div>
+                            <div><a class="button radius expand" href="/projector/my_tasks">My tasks</a></div>
+                            <div><a class="button radius expand" href="/projector/tests_page">Tests page</a></div>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="large-10 columns"">
+                <div class="content">
+                    {% block content %}{% endblock content%}
+                    {% block login %}{% endblock %}
+                    <img src="{% static "images/f2.gif" %}" width="200"/>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

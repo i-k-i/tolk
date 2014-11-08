@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block sidebar%}
+    {{ block.super }}
+    <div><a class="button radius expand" href="/projector/project/{{ project.id }}/">Cancel</a></div>
+{% endblock %}
+
+{% block content%}
+    <h2>Creating task</h2>
+    <p> In project: {{ project.name }}</p>
+    <div>
+        {% if parent %}
+            Parent task: <a href="/projector/task/{{ parent.id }}/">{{ parent.name }}</a>
+            <form action="/projector/create_subtask/{{ parent.id }}/" method="post" enctype="multipart/form-data"> {% csrf_token %}
+                {{form}}
+                <input class="button radius expand" type="submit" name="submit" value="Create">
+            </form>
+        {% else %}
+            <form action="/projector/create_task/{{ project.id }}/" method="post" enctype="multipart/form-data"> {% csrf_token %}
+                {{form}}
+                <input class="button radius expand" type="submit" name="submit" value="Create">
+            </form>
+        {% endif %}
+
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "task_list.html" %}
+
+{% block sidebar%}
+    {{ block.super }}
+    <div><a class="button radius expand" href="/projector/create_task/{{project.id}}">Create task</a></div>
+{% endblock %}
+
+{% block content %}
+    <h2>Project: {{ project.name }}</h2>
+    <p>started: {{ project.startdate}}</p>
+    <p>author: {{ project.author }}</p>
+    <p>staus: {{ project.status }}</p>
+    <p>deadline: {{ project.deadline }}</p>
+    <p>Description: {{project.description}}</p>
+    {% block task_list %}
+        {{ block.super }}
+    {% endblock task_list %}
+    {% if username %}
+        <div><a class="button radius expand" href="/projector/create_task/{{ project.id }}">Create task</a></div>
+    {% endif %}
+<div>
+    {% if username %}
+         <a class="button radius expand" href="/projector/project_comment/{{ project.id }}/">Comment</a>
+    {% endif %}
+    {% if project.projectcomment_set.all %}
+        comments:
+        <br>
+    {% for comment in project.projectcomment_set.all %}
+        {{ username }} at {{ comment.date }}
+        <div>{{ comment.comment }}</div>
+    {% endfor %}
+    {% endif %}
+    <hr>
+<div>
+
+{% endblock %}

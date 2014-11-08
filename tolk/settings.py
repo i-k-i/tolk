@@ -38,6 +38,18 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'projector',
     'taggit',
+    'south',
+    'loginsys',
+##    'filer',
+##    'easy_thumbnails',
+##    'django.contrib.comments',
+##    'mptt',
+##    'comments',
+##    'threadedcomments',
+##    'django.contrib.comments',
+##    'nicedit',
+    'redactor',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,6 +94,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+## static
+STATIC_ROOT = 'staticfiles'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+#    os.path.join(BASE_DIR, 'redactor', 'static', 'redactor'),
+
+)
+##
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
@@ -89,3 +110,22 @@ TEMPLATE_DIRS = (
 
 TIME_ZONE = 'Europe/Moscow'
 LANGUAGE_CODE = 'ru-RU'
+
+SOUTH_MIGRATION_MODULES = {
+    'taggit': 'taggit.south_migrations',
+}
+
+THUMBNAIL_HIGH_RESOLUTION = True
+
+#MEDIA_ROOT ='/home/stik/tolk/media/'
+
+#MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+REDACTOR_OPTIONS = {'lang': 'en'}
+REDACTOR_UPLOAD = 'media/uploads/'
+#REDACTOR_UPLOAD = 'uploads/'
+
+REDACTOR_UPLOAD_HANDLER = 'redactor.handlers.DateDirectoryUploader'

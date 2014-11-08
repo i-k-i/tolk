@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block sidebar%}
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    <h2>Comment: <a href="/projector/task/{{ task.id }}/">{{ task.name }}</a></h2>
+    <form action="/projector/task_comment/{{ task.id }}/" method="post"> {% csrf_token %}
+        {{ form }}
+        <input class="button radius expand"  type="submit" name="submit" value="Comment">
+    </form>
+{% endblock %}

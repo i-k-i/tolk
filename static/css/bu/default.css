@@ -1,0 +1,6 @@
+pre {
+    border-radius:5px;
+}
+pre ol, pre ul {
+    list-style-position: inside;
+}

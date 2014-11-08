@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>My projects</h2>
+<div class="large-offset-1 columns">
+{% for project in my_projects %}
+<div>
+<h2><a href="/projector/project/{{ project.id }}/">{{ project.name }}</a></h2>;
+<p>Contains:
+<p>Author: {{ project.author }}</p>
+<p>Started: {{ project.startdate }}</p>
+<p>Status: {{ project.status }}</p>
+<p>Workers: {{ project.task.workers }}:</p>
+    {% for worker in project_set.task.workers_set.all %}
+        {{ worker }}
+    {% endfor %}
+<hr>
+</div>
+{% endfor %}
+</div>
+    {% if username %}
+<p><a href="/projector/create_task/{{project.id}}">Create task</a></p>
+    {% endif %}
+{% endblock %}

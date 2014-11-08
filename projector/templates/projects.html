@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+    {{ block.super }}
+    {% if username %}
+    <div><a class="button radius expand" href="/projector/create/">Create project</a></div>
+    {% endif %}
+{% endblock %}
+{% block content %}
+<h2>Projects</h2>
+{% for project in projects %}
+<div>
+<h2><a href="/projector/project/{{ project.id }}/">{{ project.name }}</a></h2>
+<p>Name: {{project.name}}</p>
+<p>Author: {{project.author}}</p>
+<p>Started: {{project.startdate}}</p>
+<p>Status: {{project.status}}</p>
+<hr>
+</div>
+{% endfor %}
+
+{% endblock %}

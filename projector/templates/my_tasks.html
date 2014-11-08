@@ -1,0 +1,8 @@
+{% extends "task_list.html" %}
+
+{% block content %}
+    <h2>My tasks</h2>
+    {% block task_list %}
+        {{ block.super }}
+    {% endblock task_list %}
+{% endblock content %}
