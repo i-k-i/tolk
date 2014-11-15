@@ -5,27 +5,60 @@
 {% endblock sidebar%}
 
 {% block content %}
-    <pre ><code class="python">
-        def task_comment(request, task_id):
-            task = Task.objects.get(id=task_id)
-            user = auth.get_user(request)
-            if request.method == 'POST':
-                form = TaskCommentForm(request.POST)
-                if form.is_valid():
-                    c = form.save(commit=False)
-                    c.task = task
-                    c.author = user
-    </code></pre>
-    <pre><code class="xml">&lt;!DOCTYPE html&gt;
-    &lt;title&gt;Title&lt;/title&gt;
-    &lt;style&gt;body {width: 500px;}&lt;/style&gt;
-    &lt;script type="application/javascript"&gt;
-      function $init() {return true;}
-    &lt;/script&gt;
-    &lt;body&gt;
-      &lt;p checked class="title" id='title'&gt;Title&lt;/p&gt;
-      &lt;!-- here goes the rest of the page --&gt;
-    &lt;/body&gt;
-    </code></pre>
+<TABLE BORDER>
+        <TR>
+                <TD>A</TD> <TD>B</TD> <TD>C</TD>
+        </TR>
+        <TR>
+                <TD>D</TD> <TD>E</TD> <TD>F</TD>
+        </TR>
+</TABLE>
+
+<table>
+    <thead>
+    <tr>
+        <th width="200">Table Header</th>
+        <th>Table Header</th>
+        <th width="150">Table Header</th>
+        <th width="150">Table Header</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Content Goes Here</td>
+        <td>This is longer content Donec id elit non mi porta gravida at eget metus.</td>
+        <td>Content Goes Here</td>
+        <td>Content Goes Here</td>
+    </tr>
+    <tr>
+        <td>Content Goes Here</td>
+        <td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td>
+        <td>Content Goes Here</td>
+        <td>Content Goes Here</td>
+    </tr>
+    <tr>
+        <td>Content Goes Here</td>
+        <td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td>
+        <td>Content Goes Here</td>
+        <td>Content Goes Here</td>
+    </tr>
+    </tbody>
+</table>
+
+<table>
+    <thead>
+    <tr>
+        <th width="200">Table Header</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Content Goes Here</td>
+    </tr>
+    </tbody>
+</table>
+
+<table> <caption>Cute Animals Per 1,000 People</caption> <tr> <th id="state">State</th> <th id="dogs">Dogs</th> <th id="cats">Cats</th> <th id="rabbits">Rabbits</th> </tr> <tr> <th id="california" headers="state">California</th> <td headers="dogs california">3</td> <td headers="cats california">1</td> <td headers="rabbits california">10</td> </tr> </table>
+
 
 {% endblock content%}

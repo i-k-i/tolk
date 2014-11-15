@@ -7,27 +7,35 @@
 {% block content %}
     {% block task_list %}
         {% if tasks %}
-            <h2>Tasks: </h2>
-            <div class="large-offset-1 columns">
-                {% for task in tasks %}
-                    <div>
-                        <h3><a href="/projector/task/{{ task.id }}/">{{ task.name }}</a> from
-                        <a href="/projector/project/{{ task.project.id }}/">{{ task.project.name }}</a>
-                        <a href="/projector/task/{{ task.parent_task.id }}/">{{ task.parent_task.name}}</a>
-                        </h3>
-                        <p>Creator: {{ task.creator }}</p>
-                        <p>Created: {{ task.create_date }}</p>
-                        <p>Status: {{ task.status }}</p>
-                        <p>Started: {{ task.start_date }} </p>
+        <table>
+            <thead>
+                <tr>
+                     <th width="20">Id</th>
+                     <th width="150">Name</th>
+                     <th width="50">Status</th>
+                     <th width="50">Workers</th>
+                     <th width="10">Time</th>
+                     <th width="100">Project</th>
 
-                        <p>Workers: {{ task.workers.count }}:</p>
-                            {% for worker in task.workers.all %}
-                                {{ worker }}
-                            {% endfor %}
-                        <hr>
-                    </div>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td><a href="/projector/task/{{ task.id }}/">{{ task.name }}</a></td>
+                    <td>{{ task.status }}</td>
+                    <td>{{ task.workers.count }}:
+                        {% for worker in task.workers.all %}
+                            {{ worker }}
+                        {% endfor %}
+                    </td>
+                    <td>{{ task.expected_time }}</td>
+                    <td><a href="/projector/project/{{ task.project.id }}/">{{ task.project.name }}</a></td>
+                </tr>
                 {% endfor %}
-            </div>
+            </tbody>
+        </table>
         {% endif %}
     {% endblock task_list %}
 {% endblock content%}

@@ -5,20 +5,15 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from taggit.managers import TaggableManager
-
 from filer.fields.image import FilerImageField
-
 from datetime import datetime
-
 from redactor.fields import RedactorField
-
 from time import time
+from mlogger.models import logging_postsave, logging_postdelete
 
 
 def get_upload_file_name(instace, filename):
     print instace, filename
-
-  #  return "uploaded_files/{}_{}".format(str(time()).replace('.','_'), filename)
     return "uploaded_files/{}_{}".format(str(time()).replace('.','_'), filename)
 
 
@@ -68,17 +63,10 @@ class TaskComment(models.Model):
     author = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
     task = models.ForeignKey(Task)
-    comment = RedactorField(verbose_name=u'Text')
-#    comment = models.TextField(default='')
-#    image = FilerImageField(null=True, blank=True)
-
-#    file = models.FileField(upload_to=get_upload_file_name, null=True, blank=True)
-
-#    def __str__(self):
-#        return 'Task comment'
-
-#    def __unicode__(self):
-#        return u"%s" % self
+    comment = RedactorField()
 
 class Skills(models.Model):
     pass
+
+models.signals.post_save.connect(logging_postsave, sender=Project)
+models.signals.post_delete.connect(logging_postdelete, sender=Project)

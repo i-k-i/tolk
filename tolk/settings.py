@@ -49,6 +49,8 @@ INSTALLED_APPS = (
 ##    'django.contrib.comments',
 ##    'nicedit',
     'redactor',
+    'mlogger',
+
 
 )
 
@@ -59,6 +61,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+##
+    'mlogger.middleware.CurrentUserMiddleware',
 )
 
 ROOT_URLCONF = 'tolk.urls'
