@@ -6,10 +6,9 @@ from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, Me
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from mlogger.models import Log
 
-Log.objects.all()
-
+def loger(user, msg, link, obj ):
+    pass
 
 def task_status_change(task_id, status, user):
     # Stand High Patrol - boat people
