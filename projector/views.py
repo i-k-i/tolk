@@ -1,14 +1,18 @@
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 from django.http import HttpResponseRedirect
-from projector.models import Project, Task, TaskComment, ProjectComment
+from projector.models import Project, Task, TaskComment, ProjectComment, ProjectorLog
 from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, MessageForm
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-def loger(user, msg, link, obj ):
-    pass
+from mlogger.models import Log
+Log.objects.all()
+
+def loger(user, message, object_name, task=None, project=None):
+    event = ProjectorLog(user=user,task=task, project=project, message=message, object_name=object_name)
+    event.save()
 
 def task_status_change(task_id, status, user):
     # Stand High Patrol - boat people
@@ -26,6 +30,7 @@ def projects(request):
     args.update(csrf(request))
     args['projects'] = Project.objects.all()
     args['username'] = auth.get_user(request).username
+    loger(auth.get_user(request), 'see all projects', 'all_project')
     return render_to_response('projects.html', args)
 
 @login_required(login_url='/auth/login/')
@@ -36,6 +41,9 @@ def create_project(request):
             c = form.save(commit=False)
             c.author = request.user
             c.save()
+#            import pdb; pdb.set_trace()
+            project = Project.objects.get(id=c.id)
+            loger(auth.get_user(request), 'created project',c.name, project=project)
             return HttpResponseRedirect('/projector/all')
     else:
         form = ProjectForm()
@@ -47,11 +55,13 @@ def create_project(request):
 
 @login_required(login_url='/auth/login/')
 def project(request, project_id):
+    project = Project.objects.get(id=project_id)
     args = {}
     args['username'] = auth.get_user(request).username
-    args['project'] = Project.objects.get(id=project_id)
+    args['project'] = project
     args['tasks'] = Task.objects.filter(project__id=project_id).exclude(status='Finished') #only active tasks
 #    import pdb ; pdb.set_trace()
+    loger(auth.get_user(request), 'see project', project.name, project=project)
 
     return render_to_response('project.html',args)
 
@@ -66,6 +76,7 @@ def create_task(request, project_id ):
             c.project = pr
             c.save()
             form.save_m2m()
+            loger(auth.get_user(request), 'task_created', c.name, c, pr)
             return HttpResponseRedirect('/projector/project/{}'.format(project_id))
     else:
         form = TaskForm()
@@ -91,6 +102,8 @@ def create_subtask(request, task_id):
             c.parent_task = parent
             c.save()
             form.save_m2m()
+            loger(auth.get_user(request), 'task_created', c.name, c, pr)
+
             return HttpResponseRedirect('/projector/project/{}'.format(parent.project_id))
     else:
         form = TaskForm()
@@ -114,7 +127,7 @@ def task_show(request, task_id):
     if task.status == 'Finished':
         start_date = task.start_date
         if not task.start_date:
-            start_date = task.start_date
+            start_date = task.create_date
         real_time = ((task.finish_date - start_date).total_seconds())/60/60
     args = {}
     args['project'] = project
@@ -125,6 +138,7 @@ def task_show(request, task_id):
         args['my_task']=True
     if user == task.creator:
         args['creator']=True
+    loger(user, 'show_task', task.name, task, project)
     return render_to_response('task.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -142,6 +156,7 @@ def task_accept(request, task_id):
         project.status = 'In work'
         project.save()
         project_status_change(project.id, project.status, user)
+    loger(user,'task_accept', task.name,task,project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -154,6 +169,7 @@ def task_stop(request, task_id):
         task.status = 'Freezed'
         task.save()
     task_status_change(task_id, task.status, user)
+    loger(user, 'task_stop', task.name, task, task.project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -162,6 +178,7 @@ def task_done(request, task_id):
     task.status = 'Now check'
     task.save()
     task_status_change(task_id, task.status, auth.get_user(request))
+    loger(auth.get_user(request), 'task_done', task.name, task, task.project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -171,6 +188,8 @@ def task_return(request, task_id):
     task.status = 'Returned for revision'
     task.save()
     task_status_change(task_id, task.status, user)
+    loger(user, 'task_return', task.name, task, task.project)
+
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -182,6 +201,7 @@ def task_finish(request, task_id):
     task.finish_date = now
     task.save()
     task_status_change(task_id, task.status, user)
+    loger(user, 'task_finished', task.name, task, task.project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -191,6 +211,7 @@ def all_tasks(reques):
     args={}
     args['tasks'] = tasks
     args['username'] = auth.get_user(reques).username
+    loger(auth.get_user(reques), 'show_all_tasks', 'all_tasks')
     return render_to_response('all_tasks.html', args)
 
 @login_required(login_url='/auth/login/')
@@ -200,6 +221,7 @@ def my_tasks(request):
     args={}
     args['tasks']=my_tasks
     args['username'] = user.username
+    loger(user, 'show_my_tasks', 'my_tasks')
     return render_to_response('my_tasks.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -212,6 +234,7 @@ def my_projects(request):
     args={}
     args['my_projects']=my_projects
     args['username'] = user.username
+    loger(user, 'show_my_projects', 'my_projects')
 
     return render_to_response('my_projects.html',args)
 
@@ -223,7 +246,6 @@ def tests_page(request):
     args['my_projects'] = my_projects
     args['username'] = user.username
     args['form'] = form
-#    return render(request, 'tests_page.html', {'form': form})
     return render_to_response('tests_page.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -237,6 +259,7 @@ def task_comment(request, task_id):
             c.task = task
             c.author = user
             c.save()
+            loger(user, u'write comment: {}'.format(c.comment), task.name, task, task.project)
             return HttpResponseRedirect('/projector/task/{}'.format(task_id))
     else:
         form = TaskCommentForm()
@@ -258,6 +281,7 @@ def project_comment(request, project_id):
             c.project = project
             c.author = user
             c.save()
+            loger(user, u'write comment: {}'.format(c.comment), project.name, project=project)
             return HttpResponseRedirect('/projector/project/{}'.format(project_id))
     else:
         form = ProjectCommentForm()
@@ -280,11 +304,14 @@ def welcome(request):
 @login_required(login_url='/auth/login/')
 def task_edit(request, task_id ):
     task = Task.objects.get(id=task_id)
+#    import pdb; pdb.set_trace()
     user = auth.get_user(request)
     if request.POST:
         form = TaskForm(request.POST, request.FILES, instance=task)
         if form.is_valid():
             form.save()
+            loger(user, 'task_edit---after_editing---:{}; '.format(form.__dict__),
+                  task.name, task, task.project)
             return HttpResponseRedirect('/projector/task/{}/'.format(task_id))
     else:
         form = TaskForm(instance=task)
@@ -293,6 +320,7 @@ def task_edit(request, task_id ):
     args['form'] = form
     args['task'] = task
     args['user'] = user
+    loger(user, 'task_edit---before_editing---:{}; '.format(task.__dict__),task.name, task, task.project)
     return render_to_response('task_edit.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -300,10 +328,14 @@ def comment_edit(request, comment_id):
     user = auth.get_user(request)
     comment = TaskComment.objects.get(id=comment_id)
     task_id = comment.task.id
+    task = Task.objects.get(id=task_id)
+
     if request.POST:
         form = TaskCommentForm(request.POST, request.FILES, instance=comment)
         if form.is_valid():
             form.save()
+            loger(user, 'edit comment id-{} --after_editing--{} '.format(comment_id, form.__dict__), task.name, task, task.project)
+
             return HttpResponseRedirect('/projector/task/{}/'.format(task_id))
     else:
         form = TaskCommentForm(instance=comment)
@@ -312,4 +344,5 @@ def comment_edit(request, comment_id):
     args['form'] = form
     args['comment'] = comment
     args['user'] = user
+    loger(user, 'edit comment id-{} --before_editing--{} '.format(comment_id, comment.__dict__), task.name, task, task.project)
     return render_to_response('comment_edit.html',args)

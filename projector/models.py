@@ -10,6 +10,7 @@ from datetime import datetime
 from redactor.fields import RedactorField
 from time import time
 
+from mlogger.models import logging_postsave, logging_postdelete
 
 
 def get_upload_file_name(instace, filename):
@@ -70,7 +71,10 @@ class ProjectorLog(models.Model):
     task = models.ForeignKey(Task, blank=True, null=True)
     project = models.ForeignKey(Project, blank=True, null=True)
     message = models.TextField()
-    object_name = models.CharField()
+    object_name = models.CharField(max_length=200)
 
 class Skills(models.Model):
     pass
+
+models.signals.post_save.connect(logging_postsave, sender=Project)
+models.signals.post_delete.connect(logging_postdelete, sender=Project)
