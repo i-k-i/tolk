@@ -10,6 +10,8 @@
         <link rel="stylesheet" href="{% static "redactor/css/redactor.css" %}" />
         <script src="{% static "redactor/redactor.js" %}"></script>
         <script>hljs.initHighlightingOnLoad();</script>
+        <script src="{% static "js/js.js" %}"></script>
+        <script type="text/javascript" src="{% static "js/jquery.dataTables.min.js" %}"></script>
 
     </head>
     <body>
@@ -35,11 +37,12 @@
                             <div><a class="button radius expand" href="/projector/my_projects">My projects</a></div>
                             <div><a class="button radius expand" href="/projector/my_tasks">My tasks</a></div>
                             <div><a class="button radius expand" href="/projector/tests_page">Tests page</a></div>
+                            <div><a class="button radius expand" href="/projector/logs">Logs</a></div>
                         {% endif %}
                     {% endblock %}
                 </div>
             </div>
-            <div class="large-10 columns"">
+            <div class="large-10 columns">
                 <div class="content">
                     {% block content %}{% endblock content%}
                     {% block login %}{% endblock %}

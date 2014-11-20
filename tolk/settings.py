@@ -49,7 +49,7 @@ INSTALLED_APPS = (
 ##    'django.contrib.comments',
 ##    'nicedit',
     'redactor',
-    'mlogger',
+##    'mlogger',
 
 
 )

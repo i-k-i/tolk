@@ -10,9 +10,6 @@ from datetime import datetime
 from redactor.fields import RedactorField
 from time import time
 
-from mlogger.models import logging_postsave, logging_postdelete
-
-
 def get_upload_file_name(instace, filename):
     print instace, filename
     return "uploaded_files/{}_{}".format(str(time()).replace('.','_'), filename)
@@ -45,6 +42,7 @@ class Task(models.Model):
     tags = TaggableManager(blank=True)
     deadline = models.DateTimeField(null=True, blank=True)
     parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtask')
+    digress = models.PositiveIntegerField(blank=True, null=True) # in seconds; if useful: change other TimeFields
 
     def __unicode__(self):
         return u'{}'.format(self.name)
@@ -75,6 +73,3 @@ class ProjectorLog(models.Model):
 
 class Skills(models.Model):
     pass
-
-models.signals.post_save.connect(logging_postsave, sender=Project)
-models.signals.post_delete.connect(logging_postdelete, sender=Project)

@@ -7,9 +7,6 @@ from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-from mlogger.models import Log
-Log.objects.all()
-
 def loger(user, message, object_name, task=None, project=None):
     event = ProjectorLog(user=user,task=task, project=project, message=message, object_name=object_name)
     event.save()
@@ -346,3 +343,12 @@ def comment_edit(request, comment_id):
     args['user'] = user
     loger(user, 'edit comment id-{} --before_editing--{} '.format(comment_id, comment.__dict__), task.name, task, task.project)
     return render_to_response('comment_edit.html',args)
+
+@login_required(login_url='/auth/login/')
+def logs(request):
+    user = auth.get_user(request)
+    logs = ProjectorLog.objects.all()
+    args={}
+    args['username']=user.username
+    args['logs']=logs
+    return render_to_response('logs.html', args)

@@ -1,10 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block sidebar%}
+    {{ block.super }}
+{% endblock sidebar%}
+
+{% block content %}
+    {% block log_list %}
+        {% if logs %}
+        <table class="log-table">
+            <thead>
+                <tr>
+                     <th width="20">Id</th>
+                     <th width="20">User</th>
+                     <th width="20">Action_time</th>
+                     <th width="100">Message</th>
+                     <th width="50">Name</th>
+                     <th width="50">Task</th>
+                     <th width="50">Project</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.user }}</td>
+                    <td>{{ log.action_time }}</td>
+                    <td>{{ log.message }}</td>
+                    <td>{{ log.object_name }}</td>
+                    <td><a href="/projector/task/{{ log.task_id }}/">{{ log.task.name }}</a></td>
+                    <td><a href="/projector/project/{{ log.project_id }}/">{{ log.project.name }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% endblock log_list %}
+{% endblock content%}

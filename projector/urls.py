@@ -25,7 +25,8 @@ urlpatterns = patterns('',
     url(r'^task_edit/(?P<task_id>\d+)/$', 'projector.views.task_edit'),
     url(r'^tests_page/$', 'projector.views.tests_page'),
     url(r'^comment_edit/(?P<comment_id>\d+)/$', 'projector.views.comment_edit'),
-#    url(r'^favorits/$', 'projector.views.favorits'),
+    url(r'^logs/$', 'projector.views.logs'),
+
 
 )
 

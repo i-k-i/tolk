@@ -1,3 +1,3 @@
-/**
- * Created by stik on 18.11.14.
- */
+$(document).ready(function() {
+    $('.log-table').DataTable();
+} );
