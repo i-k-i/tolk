@@ -20,6 +20,6 @@ urlpatterns = patterns('',
     url(r'^auth/', include('loginsys.urls')),
 
     url(r'^$', 'projector.views.welcome'),
-
+    url(r'^accounts/', include('userena.urls')),
     url(r'^redactor/', include('redactor.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
