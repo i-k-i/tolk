@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = patterns('',
-    url(r'^all/$', 'projector.views.projects'),
+    url(r'^all/$', 'projector.views.projects', name='all'),
 #    url(r'^show/(?P<project_id>\d+)/$', 'projector.views.project'),
     url(r'^project/(?P<project_id>\d+)/$', 'projector.views.project'),
     url(r'^create/$', 'projector.views.create_project'),
@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^task/(?P<task_id>\d+)/$', 'projector.views.task_show'),
     url(r'^task_accept/(?P<task_id>\d+)/$', 'projector.views.task_accept'),
     url(r'^task_stop/(?P<task_id>\d+)/$', 'projector.views.task_stop'),
-    url(r'^task_done/(?P<task_id>\d+)/$', 'projector.views.task_done'),
+    url(r'^task_done/(?P<task_id>\d+)/$', 'projector.views.task_done', name='task_done'),
     url(r'^task_return/(?P<task_id>\d+)/$', 'projector.views.task_return'),
     url(r'^task_finish/(?P<task_id>\d+)/$', 'projector.views.task_finish'),
     url(r'^all_tasks/$', 'projector.views.all_tasks'),

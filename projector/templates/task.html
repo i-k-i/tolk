@@ -9,92 +9,92 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Project: <a href="/projector/project/{{ project.id }}/">{{ project.name }}</a></h2>
+    {% block taskinfo %}
+        <h2>Project: <a href="/projector/project/{{ project.id }}/">{{ project.name }}</a></h2>
 
-    <table>
-        <thead>
+        <table>
+            <thead>
+                <tr>
+                    <th width="20">Id</th>
+                    <th width="150">Name</th>
+                    <th width="150">Status</th>
+                    <th width="50">Project</th>
+                    <th width="100">Workers</th>
+                    <th width="150">Tags</th>
+
+                </tr>
+            </thead>
+            <tbody>
             <tr>
-                <th width="20">Id</th>
-                <th width="150">Name</th>
-                <th width="150">Status</th>
-                <th width="50">Project</th>
-                <th width="100">Workers</th>
-                <th width="150">Tags</th>
+                <td>{{ task.id }}</td>
+                <td>{{ task.name }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ project.name }}</td>
+                <td>{{ task.workers.count }}:
+                    {% for worker in task.workers.all %}
+                        {{ worker }}
+                    {% endfor %}</td>
+                <td>{{ task.tags }}</td>
 
             </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>{{ task.id }}</td>
-            <td>{{ task.name }}</td>
-            <td>{{ task.status }}</td>
-            <td>{{ project.name }}</td>
-            <td>{{ task.workers.count }}:
-                {% for worker in task.workers.all %}
-                    {{ worker }}
-                {% endfor %}</td>
-            <td>{{ task.tags }}</td>
-
-        </tr>
-        </tbody>
-    </table>
-
-
-
-    <h3>Task: {{ task.name }}</h3>
-<div>
-    <p>Creator: {{ task.creator }}</p>
-    <p>Created: {{ task.create_date }} </p>
-    <p>Started: {{ task.start_date }}</p>
-    <p>Status: {{task.status }}</p>
-    <p>Parent task: {{ task.parent_task.name }}</p>
-    <p>Subtask: {{ task.subtask }}</p>
-    <p>Finished: {{ task.finish_date }} </p>
-    <p>Expected time:{{ task.expected_time }} </p>
-    <p>Real time: {{ real_time }}</p>
-    <p>Workers: {{ task.workers.count }}:
-    {% for worker in task.workers.all %}
-        {{ worker }}
-    {% endfor %}
-    </p>
-    <p>Description: {{ task.description }}</p>
-    <hr>
-    <div>
-
-    {% if task.taskcomment_set.all %}
-        <h3>comments:</h3>
-        <br>
-        {% for comment in task.taskcomment_set.all %}
-            {{ username }} at {{ comment.date }}
-            <div>
-                {{ comment.comment|unscript|safe }}
-            </div>
-            <div>{{ comment.file }}</div>
-            {% if username == comment.author.username %}
-                <div><a class="button radius expand" href="/projector/comment_edit/{{ comment.id }}/">Edit</a></div>
-            {% endif %}
-            <hr>
+            </tbody>
+        </table>
+        <h3>Task: {{ task.name }}</h3>
+        <p>Creator: {{ task.creator }}</p>
+        <p>Created: {{ task.create_date }} </p>
+        <p>Started: {{ task.start_date }}</p>
+        <p>Status: {{task.status }}</p>
+        <p>Parent task: {{ task.parent_task.name }}</p>
+        <p>Subtask: {{ task.subtask }}</p>
+        <p>Finished: {{ task.finish_date }} </p>
+        <p>Expected time:{{ task.expected_time }} </p>
+        <p>Real time: {{ real_time }}</p>
+        <p>Workers: {{ task.workers.count }}:
+        {% for worker in task.workers.all %}
+            {{ worker }}
         {% endfor %}
-    {% endif %}
-    </div>
-    <div class="block-grid-parent">
+        </p>
+        <p>Description: {{ task.description }}</p>
+        <hr>
 
+    {% endblock taskinfo %}
+    {% block comment %}
+        <div>
+            {% if task.taskcomment_set.all %}
+                <h3>comments:</h3>
+                <br>
+                {% for comment in task.taskcomment_set.all %}
+                    {{ username }} at {{ comment.date }}
+                    <div>
+                        {{ comment.comment|unscript|safe }}
+                    </div>
+                    <div>{{ comment.file }}</div>
+                    {% if username == comment.author.username %}
+                        <div><a class="button radius expand" href="/projector/comment_edit/{{ comment.id }}/">Edit</a></div>
+                    {% endif %}
+                    <hr>
+                {% endfor %}
+            {% endif %}
+        </div>
+     {% endblock comment %}
+    <div class="block-grid-parent">
         {% if username %}
             {% ifnotequal task.status 'Finished' %}
-
                 {% if not my_task %}
-
                     <li><a class="button" href="/projector/task_accept/{{ task.id }}/">Accept</a></li>
                 {% else %}
-
                     <li><a class="button" href="/projector/task_stop/{{ task.id }}/">Stop</a></li>
-                    <li><a class="button" href="/projector/task_done/{{ task.id }}/">Done</a></li>
+                    <li><a id="task_done" class="button">Done</a></li>
+
+                    <form id="done_dialog" title="distraction time" action="{% url 'task_done' task.id %}" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                    </form>
                 {% endif %}
             {% endifnotequal %}
             {% if creator  %}
                 <li><a class="button" href="/projector/task_return/{{ task.id }}/">Return</a></li>
                 <li><a class="button" href="/projector/task_edit/{{ task.id }}/">Edit</a></li>
-
             {% endif %}
             {% ifnotequal task.status 'Finished' %}
                     <li><a class="button" href="/projector/task_finish/{{ task.id }}/">Finish</a></li>

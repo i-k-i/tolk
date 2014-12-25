@@ -50,6 +50,11 @@ INSTALLED_APPS = (
 ##    'nicedit',
     'redactor',
 ##    'mlogger',
+## 4 userena
+    'easy_thumbnails',
+    'guardian',
+    'userena',
+    'accounts'
 
 
 )
@@ -133,3 +138,12 @@ REDACTOR_UPLOAD = 'media/uploads/'
 #REDACTOR_UPLOAD = 'uploads/'
 
 REDACTOR_UPLOAD_HANDLER = 'redactor.handlers.DateDirectoryUploader'
+
+
+AUTHENTICATION_BACKENDS = (
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'

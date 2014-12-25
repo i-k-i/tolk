@@ -1,8 +1,8 @@
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from projector.models import Project, Task, TaskComment, ProjectComment, ProjectorLog
-from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, MessageForm
+from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, MessageForm, TaskDoneForm
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -126,7 +126,10 @@ def task_show(request, task_id):
         if not task.start_date:
             start_date = task.create_date
         real_time = ((task.finish_date - start_date).total_seconds())/60/60
+    form = TaskDoneForm()
     args = {}
+    args.update(csrf(request))     # 4 task_done
+    args['form'] = form
     args['project'] = project
     args['task'] = task
     args['username'] = user.username
@@ -172,11 +175,19 @@ def task_stop(request, task_id):
 @login_required(login_url='/auth/login/')
 def task_done(request, task_id):
     task = Task.objects.get(id=task_id)
-    task.status = 'Now check'
-    task.save()
-    task_status_change(task_id, task.status, auth.get_user(request))
-    loger(auth.get_user(request), 'task_done', task.name, task, task.project)
-    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+    user = auth.get_user(request)
+    if request.method == 'POST':
+        form = TaskDoneForm(request.POST)
+        if form.is_valid():
+            # import pdb; pdb.set_trace()
+            digress = form.cleaned_data['digress']
+            task.digress = digress
+            task.status = 'Now check'
+            task.save()
+            task_status_change(task_id, task.status, auth.get_user(request))
+            loger(user, 'task_done', task.name, task, task.project)
+            return HttpResponseRedirect('/projector/task/{}'.format(task_id))
+    return HttpResponseRedirect('/projector/task/{}'.format(task_id))
 
 @login_required(login_url='/auth/login/')
 def task_return(request, task_id):
@@ -186,7 +197,6 @@ def task_return(request, task_id):
     task.save()
     task_status_change(task_id, task.status, user)
     loger(user, 'task_return', task.name, task, task.project)
-
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
@@ -238,11 +248,11 @@ def my_projects(request):
 @login_required(login_url='/auth/login/')
 def tests_page(request):
     user = auth.get_user(request)
-    form = MessageForm()
     args={}
     args['my_projects'] = my_projects
     args['username'] = user.username
-    args['form'] = form
+    request.session.set_expiry(60)
+    request.session['pause'] = True
     return render_to_response('tests_page.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -317,6 +327,7 @@ def task_edit(request, task_id ):
     args['form'] = form
     args['task'] = task
     args['user'] = user
+    args['username']=user.username
     loger(user, 'task_edit---before_editing---:{}; '.format(task.__dict__),task.name, task, task.project)
     return render_to_response('task_edit.html',args)
 
@@ -332,7 +343,6 @@ def comment_edit(request, comment_id):
         if form.is_valid():
             form.save()
             loger(user, 'edit comment id-{} --after_editing--{} '.format(comment_id, form.__dict__), task.name, task, task.project)
-
             return HttpResponseRedirect('/projector/task/{}/'.format(task_id))
     else:
         form = TaskCommentForm(instance=comment)
