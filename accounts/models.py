@@ -8,7 +8,7 @@ class MyProfile(UserenaBaseProfile):
     user = models.OneToOneField(User,
                                 unique=True,
                                 verbose_name=_('user'),
-                                related_name='my_profile')
+                                related_name='profile')
     favourite_snack = models.CharField(_('favourite snack'),
                                        max_length=5)
 # Create your models here.

@@ -124,7 +124,7 @@ SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }
 
-THUMBNAIL_HIGH_RESOLUTION = True
+#THUMBNAIL_HIGH_RESOLUTION = True
 
 #MEDIA_ROOT ='/home/stik/tolk/media/'
 
@@ -147,3 +147,14 @@ AUTHENTICATION_BACKENDS = (
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+
+ANONYMOUS_USER_ID = -1
+
+AUTH_PROFILE_MODULE = 'accounts.MyProfile'
+
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'size': (50, 50), 'crop': True},
+    },
+}
