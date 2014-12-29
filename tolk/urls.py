@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^projector/', include('projector.urls')),
     url(r'^auth/', include('loginsys.urls')),
+    url(r'^achievement/', include('achievement.urls')),
 
     url(r'^$', 'projector.views.welcome'),
     url(r'^accounts/', include('userena.urls')),

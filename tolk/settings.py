@@ -54,7 +54,8 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'guardian',
     'userena',
-    'accounts'
+    'accounts',
+    'achievement'
 
 
 )
