@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+
+{% block sidebar%}
+    <div><a class="button radius expand" href="{% url 'achievement_all' %} ">all</a></div>
+    <div><a class="button radius expand" href="{% url 'achievement_log' %} ">log</a></div>
+    <div><a class="button radius expand" href="{% url 'achievement_create' %} ">create</a></div>
+{% endblock %}
+
+{% block content%}
+    <h2>Creating achievement</h2>
+    <div>
+        <form action="{% url 'achievement_create' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+            {{form}}
+            <input class="button radius expand" type="submit" name="submit" value="Create">
+        </form>
+    </div>
+{% endblock content %}
