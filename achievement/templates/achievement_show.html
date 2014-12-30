@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+
+{% block content%}
+    <h2>{{ achievement.name }}</h2>
+    <img src="/media/{{ achievement.image }}" alt="Achievement" height="42" width="42">
+    <div>{{ achievement.description }}</div>
+    <div>created by: <a href="/accounts/{{ achievement.creator }} ">{{ achievement.creator }}</a></div>
+
+{% endblock content %}
+
+
+<img src="smiley.gif" alt="Smiley face" height="42" width="42">

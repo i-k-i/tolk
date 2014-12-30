@@ -5,6 +5,7 @@ from userena import settings as userena_settings
 from userena.compat import SiteProfileNotAvailable
 from userena.compat import sha_constructor, md5_constructor
 
+
 import urllib, random, datetime
 
 try:

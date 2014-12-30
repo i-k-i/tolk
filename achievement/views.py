@@ -21,7 +21,7 @@ def achivement_create(request,):
             c.creator = user
             c.save()
             achivement_loger(user, c)
-            return redirect('achivement/{}'.format(c.id))
+            return redirect('/achievement/{}'.format(c.id))
     else:
         form = AchievementForm()
     args = {}
