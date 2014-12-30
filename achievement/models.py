@@ -37,3 +37,4 @@ class AchievementLogs(models.Model):
     achievement = models.ForeignKey(Achievement)
     user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
+    
