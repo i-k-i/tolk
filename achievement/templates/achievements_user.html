@@ -2,7 +2,6 @@
 
 {% block content %}
 <h3>Achievements of <a href="{% url 'userena_profile_detail' user %}">{{ user }}</a> </h3>
-
     {% block achiecve_list %}
         {% if achievements %}
         <table>
@@ -18,10 +17,16 @@
             <tbody>
                 {% for achiev in achievements %}
                 <tr>
-                    <td>{{ achiev.name }}</td>
-                    <td>{{ achiev.count }}</td>
-                    <td>{{ last }}</td>
-                    <td>{{ achiev.image}}</td>
+                    <td>{{ achiev.achievement }}</td>
+                    <td>{{ achiev.quantity }}</td>
+                    <td> TODO last</td>
+                    <td>
+                        {% if achiev.achievement.image %}
+                            <img src="/media/{{ achiev.achievement.image }}" alt="{{ achiev.achievement }}" height="42" width="42">
+                        {% else %}
+                            <p>No Image</p>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

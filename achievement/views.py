@@ -55,10 +55,15 @@ def achievement_new(request):
         form = NewAchievementFrom(request.POST)
         if form.is_valid():
             achiev = form.save(commit=False)
-            achiev.quantity+=1
-            achiev.save()
-            achivement_loger(achiev.user, achiev.achievement)
-            return redirect('/achievement/user/{}/'.format(achiev.user))
+            state = AchievementState.objects.filter(achievement=achiev.achievement, user=achiev.user)
+            if state:
+                state[0].quantity+=1
+                state[0].save()
+            else:
+                achiev.quantity+=1
+                achiev.save()
+                achivement_loger(achiev.user, achiev.achievement)
+            return redirect('/achievement/user/{}/'.format(achiev.user_id))
     else:
         form=NewAchievementFrom()
 
@@ -72,9 +77,11 @@ def achievement_new(request):
 def achievements_user(request, user_id):
     user = User.objects.get(id=user_id)
     achievements = AchievementState.objects.filter(user=user_id)
+
+#    import pdb; pdb.set_trace()
+
     args ={}
     args['achievements'] = achievements
     args['user'] = user
-    print args
-    return render_to_response('achievement_user.html', args)
+    return render_to_response('achievements_user.html', args)
 
