@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    {% block log_list %}
+        {% if log %}
+        <table>
+            <thead>
+                <tr>
+                     <th width="20">Id</th>
+                     <th width="50">User</th>
+                     <th width="80">Achievement</th>
+                     <th width="20">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in log %}
+                <tr>
+                    <td>{{ entry.id }}</td>
+                    <td><a href="{% url 'userena_profile_detail' entry.user %}">{{ entry.user}}</a></td>
+                    <td><a href="{% url 'achievement_show' entry.achievement_id %}">{{ entry.get_achievement_name }}</a></td>
+                    <td>{{ entry.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% endblock log_list %}
+{% endblock content%}

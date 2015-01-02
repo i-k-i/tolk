@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content%}
+    <h2>Achive</h2>
+    <div>
+        <form action="{% url 'achievement_new' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+            {{form}}
+            <input class="button radius expand" type="submit" name="submit" value="Apply">
+        </form>
+    </div>
+{% endblock content %}

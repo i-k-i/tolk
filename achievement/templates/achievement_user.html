@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Achievements of <a href="{% url 'userena_profile_detail' user %}">{{ user }}</a> </h3>
+
+    {% block achiecve_list %}
+        {% if achievements %}
+        <table>
+            <thead>
+                <tr>
+                     <th width="20">Achievement</th>
+                     <th width="20">Quantity</th>
+                     <th width="50">Last</th>
+                     <th width="50">Image</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for achiev in achievements %}
+                <tr>
+                    <td>{{ achiev.name }}</td>
+                    <td>{{ achiev.count }}</td>
+                    <td>{{ last }}</td>
+                    <td>{{ achiev.image}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% endblock achiecve_list %}
+{% endblock content%}

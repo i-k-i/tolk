@@ -10,7 +10,7 @@ ACHIEVEMENT_IMAGE_SETTINGS = {'size': (100,100), 'crop': 'smart'}
 
 def path_to_image(instance, filename):
     extension = filename.split('.')[-1].lower()
-    new_fname = sha1(instance.name).hexdigest()
+    new_fname = sha1(u'{}'.format(instance.name).encode('utf-8')).hexdigest()
     return '{}/{}.{}'.format(ACHIEVEMENT_IMAGE_PATH, new_fname, extension)
 
 class Achievement(models.Model):
@@ -23,18 +23,23 @@ class Achievement(models.Model):
                                   null=True,
                                   upload_to=path_to_image,
                                   resize_source=ACHIEVEMENT_IMAGE_SETTINGS,
-                                  help_text=_('Image of achievement.'))
+                                  help_text=('Image of achievement.'))
+
+    def __unicode__(self):
+        return u'{}'.format(self.name)
 
     def __str__(self):
-        return self.name
+        return u'{}'.format(self.name)
 
 class AchievementState(models.Model):
     achievement = models.ForeignKey(Achievement)
     user = models.ForeignKey(User)
-    count = models.IntegerField(default=1)
+    quantity = models.IntegerField(default=0)
 
 class AchievementLogs(models.Model):
     achievement = models.ForeignKey(Achievement)
     user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
-    
+
+    def get_achievement_name(self):
+        return u'{}'.format(self.achievement.name)

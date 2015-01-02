@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+    {% block achievement_list %}
+        {% if achievements %}
+        <table>
+            <thead>
+                <tr>
+                     <th width="20">Id</th>
+                     <th width="50">Name</th>
+                     <th width="80">Description</th>
+                     <th width="20">Creator</th>
+                     <th width="10">Date of creation</th>
+                     <th width="20">Image</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for achiev in achievements %}
+                <tr>
+                    <td>{{ achiev.id }}</td>
+                    <td><a href="{% url 'achievement_show' achiev.id %}">{{ achiev.name }}</a></td>
+                    <td>{{ achiev.description }}</td>
+                    <td>
+                        <a href="{% url 'userena_profile_detail' achiev.creator %}">{{ achiev.creator }}</a>
+                    </td>
+                    <td>{{ achiev.created }}</td>
+                    <td>
+                        {% if achiev.image %}
+                            <img src="/media/{{ achiev.image }}" alt="{{ achiev.name }}" height="50" width="50">
+                        {% else %}
+                            <p>No Image</p>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% endblock achievement_list %}
+{% endblock content%}
