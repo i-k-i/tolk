@@ -159,3 +159,7 @@ THUMBNAIL_ALIASES = {
         'avatar': {'size': (50, 50), 'crop': True},
     },
 }
+
+# [ERR]:You're using the Django "sites framework" without having set the SITE_ID setting. Create a site in your database and set the SITE_ID setting to fix this error.
+# [FIX]:
+SITE_ID = 1

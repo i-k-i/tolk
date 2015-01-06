@@ -247,8 +247,13 @@ def my_projects(request):
 
 @login_required(login_url='/auth/login/')
 def tests_page(request):
+    from guardian.shortcuts import get_perms
     user = auth.get_user(request)
+    task = Task.objects.get(id=10)
+    text = get_perms(user, task)
+
     args={}
+    args['text']=text
     args['my_projects'] = my_projects
     args['username'] = user.username
     request.session.set_expiry(60)
