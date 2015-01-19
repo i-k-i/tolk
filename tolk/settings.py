@@ -55,7 +55,8 @@ INSTALLED_APPS = (
     'guardian',
     'userena',
     'accounts',
-    'achievement'
+    'achievement',
+     'django.contrib.sites', # [ERR] userena activation require
 
 
 )
@@ -160,6 +161,6 @@ THUMBNAIL_ALIASES = {
     },
 }
 
-# [ERR]:You're using the Django "sites framework" without having set the SITE_ID setting. Create a site in your database and set the SITE_ID setting to fix this error.
+# [ERR] in userena activate: You're using the Django "sites framework" without having set the SITE_ID setting. Create a site in your database and set the SITE_ID setting to fix this error.
 # [FIX]:
 SITE_ID = 1
