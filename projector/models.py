@@ -32,7 +32,6 @@ class Task(models.Model):
     name = models.CharField(max_length=200)
     creator = models.ForeignKey(User,related_name='creator', default=1)
     start_date = models.DateTimeField(blank=True, null=True)
- #   create_date = models.DateTimeField(auto_now_add=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, default='dreams')
     expected_time = models.TimeField(null=True, blank=True)
