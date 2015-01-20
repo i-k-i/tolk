@@ -248,11 +248,15 @@ def my_projects(request):
 @login_required(login_url='/auth/login/')
 def tests_page(request):
     from guardian.shortcuts import get_perms
+    from guardian.shortcuts import get_objects_for_user
     user = auth.get_user(request)
-    task = Task.objects.get(id=10)
+    task = Project.objects.get(id=10)
     text = get_perms(user, task)
-
+    text.append('----------------------------------')
+    # text.append(str(get_objects_for_user(user, 'project.add_project')))
+    perm = (get_objects_for_user(user, 'projector.change_task'))
     args={}
+    args['perm']=perm
     args['text']=text
     args['my_projects'] = my_projects
     args['username'] = user.username

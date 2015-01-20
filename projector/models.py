@@ -10,10 +10,13 @@ from datetime import datetime
 from redactor.fields import RedactorField
 from time import time
 
+from django.utils.encoding import python_2_unicode_compatible
+
 def get_upload_file_name(instace, filename):
     print instace, filename
     return "uploaded_files/{}_{}".format(str(time()).replace('.','_'), filename)
 
+@python_2_unicode_compatible
 class Project(models.Model):
     name = models.CharField(max_length=200, default=str(timezone.now()))
     startdate = models.DateTimeField(auto_now_add=True)
@@ -29,7 +32,6 @@ class Task(models.Model):
     name = models.CharField(max_length=200)
     creator = models.ForeignKey(User,related_name='creator', default=1)
     start_date = models.DateTimeField(blank=True, null=True)
- #   create_date = models.DateTimeField(auto_now_add=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, default='dreams')
     expected_time = models.TimeField(null=True, blank=True)
