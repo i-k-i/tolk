@@ -222,6 +222,11 @@ def all_tasks(reques):
     return render_to_response('all_tasks.html', args)
 
 @login_required(login_url='/auth/login/')
+def available_tasks(request):
+    user = auth.get_user(request)
+
+
+@login_required(login_url='/auth/login/')
 def my_tasks(request):
     user = auth.get_user(request)
     my_tasks = Task.objects.filter(workers__id=user.id).exclude(status='Finished')

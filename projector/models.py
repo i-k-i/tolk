@@ -46,6 +46,18 @@ class Task(models.Model):
     parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtask')
     digress = models.PositiveIntegerField(blank=True, null=True) # in seconds; if useful: change other TimeFields
 
+    class Meta:
+        permissions = (
+            ('view_task', 'View task'),
+            ('accept_task', 'Accept task'),
+            ('done_task', 'Done task'),
+            ('finish_task', 'Finish task'),
+            ('create_subtask', 'Create subtask'),
+            ('edit_task', 'Edit task'),
+            ('comment_task', 'Edit task'),
+
+        )
+
     def __unicode__(self):
         return u'{}'.format(self.name)
 
