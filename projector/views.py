@@ -6,9 +6,13 @@ from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, Me
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
+
+from django.contrib.auth.models import User, Group
 
 def loger(user, message, object_name, task=None, project=None):
-    event = ProjectorLog(user=user,task=task, project=project, message=message, object_name=object_name)
+    event = ProjectorLog(user=user, task=task, project=project, message=message, object_name=object_name)
     event.save()
 
 def task_status_change(task_id, status, user):
@@ -20,9 +24,35 @@ def project_status_change(project_id, status, user):
     c = ProjectComment(author=user, project_id=project_id, comment=status)
     c.save()
 
+all_task_perms =(
+    'view_task',
+    'accept_task',
+    'done_task',
+    'finish_task',
+    'create_subtask',
+    'edit_task',
+    'comment_task',
+    'stop_task',
+    'return_task',
+    'delete_task')
+
+
+
+project_creator_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
+                         'project': ('view_project', 'edit_project', 'comment_project')}
+project_worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
+                        'project': ('view_project', 'comment_project')}
+
+task_creator_perms = ('create_subtask','edit_task', 'finish_task', 'return_task')
+task_worker_perms = ('done_task', 'stop_task')
+
+worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
+                'project': ('view_project', 'comment_project')}
+
+
 @login_required(login_url='/auth/login/')
 def projects(request):
-    '''Show all project'''
+    '''Show all projects'''
     args = {}
     args.update(csrf(request))
     args['projects'] = Project.objects.all()
@@ -40,6 +70,7 @@ def create_project(request):
             c.save()
 #            import pdb; pdb.set_trace()
             project = Project.objects.get(id=c.id)
+            Group.objects.create(name='{}_pr_workers'.format(c.id)).save()
             loger(auth.get_user(request), 'created project',c.name, project=project)
             return HttpResponseRedirect('/projector/all')
     else:
@@ -82,7 +113,6 @@ def create_task(request, project_id ):
     args['project'] = pr
     args['form'] = form
     args['username'] = auth.get_user(request).username
-
 #    import pdb; pdb.set_trace()
     return render_to_response('create_task.html',args)
 
@@ -121,6 +151,8 @@ def task_show(request, task_id):
     project = Project.objects.get(id=task.project.id)
     user = auth.get_user(request)
     real_time = 'not specified'
+    if not user.has_perm('view_task', task):
+        raise PermissionDenied
     if task.status == 'Finished':
         start_date = task.start_date
         if not task.start_date:
@@ -141,11 +173,15 @@ def task_show(request, task_id):
     loger(user, 'show_task', task.name, task, project)
     return render_to_response('task.html',args)
 
+#@permission_required('accept_task')
+
 @login_required(login_url='/auth/login/')
 def task_accept(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
     project = Project.objects.get(id=task.project_id)
+    if not user.has_perm('accept_task', task):
+        raise PermissionDenied
     task.workers.add(user)
     task.status = 'In work'
     if not task.start_date: # rewrite protection
@@ -156,13 +192,15 @@ def task_accept(request, task_id):
         project.status = 'In work'
         project.save()
         project_status_change(project.id, project.status, user)
-    loger(user,'task_accept', task.name,task,project)
+    loger(user, 'task_accept', task.name, task, project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
 def task_stop(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
+    if not user.has_perm('stop_task', task):
+        raise PermissionDenied
     task.workers.remove(user)
     task.save()
     if task.workers.count()==0:
@@ -176,6 +214,8 @@ def task_stop(request, task_id):
 def task_done(request, task_id):
     task = Task.objects.get(id=task_id)
     user = auth.get_user(request)
+    if not user.has_perm('done_task', task):
+        raise PermissionDenied
     if request.method == 'POST':
         form = TaskDoneForm(request.POST)
         if form.is_valid():
@@ -193,6 +233,8 @@ def task_done(request, task_id):
 def task_return(request, task_id):
     task = Task.objects.get(id=task_id)
     user = auth.get_user(request)
+    if not user.has_perm('return_task', task):
+        raise PermissionDenied
     task.status = 'Returned for revision'
     task.save()
     task_status_change(task_id, task.status, user)
@@ -204,6 +246,8 @@ def task_finish(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
     now = timezone.now()
+    if not user.has_perm('finish_task', task):
+        raise PermissionDenied
     task.status = 'Finished'
     task.finish_date = now
     task.save()
@@ -224,7 +268,17 @@ def all_tasks(reques):
 @login_required(login_url='/auth/login/')
 def available_tasks(request):
     user = auth.get_user(request)
+    tasks = Task.objects.exclude(status__in=['Finished','In work', 'Returned for revision'])
+    tasks_perm = []
+    for i in tasks:
+        if user.has_perm('accept_task',i):
+            tasks_perm.append(i)
+#    import pdb; pdb.set_trace()
 
+    args = {}
+    args['username'] = user
+    args['tasks'] = tasks_perm
+    return render_to_response('available_tasks.html', args)
 
 @login_required(login_url='/auth/login/')
 def my_tasks(request):
@@ -244,7 +298,7 @@ def my_projects(request):
     my_projects = Project.objects.filter(task__workers__id=user.id).distinct()
 
     args={}
-    args['my_projects']=my_projects
+    args['my_projects'] = my_projects
     args['username'] = user.username
     loger(user, 'show_my_projects', 'my_projects')
 

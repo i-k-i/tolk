@@ -26,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^tests_page/$', 'projector.views.tests_page'),
     url(r'^comment_edit/(?P<comment_id>\d+)/$', 'projector.views.comment_edit'),
     url(r'^logs/$', 'projector.views.logs'),
-
+    url(r'^available_tasks/$', 'projector.views.available_tasks'),
 
 )
 

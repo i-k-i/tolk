@@ -24,6 +24,7 @@ class Project(models.Model):
     author = models.ForeignKey(User)
     description = models.TextField(default='Just one more thing')
     status = models.CharField(max_length=50, default='dreams')
+    public = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -54,7 +55,10 @@ class Task(models.Model):
             ('finish_task', 'Finish task'),
             ('create_subtask', 'Create subtask'),
             ('edit_task', 'Edit task'),
-            ('comment_task', 'Edit task'),
+            ('comment_task', 'Comment task'),
+            ('stop_task', 'Stop task'),
+            ('return_task', 'Return task'),
+            ('delete_task', 'Delete task'),
 
         )
 
