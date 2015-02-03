@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0a7872f7-3d3e-4474-a0d7-c56c22309b47" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/projector/migrations/0021_auto__add_field_project_public.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db.sqlite3" afterPath="$PROJECT_DIR$/db.sqlite3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scheme.graphml" afterPath="$PROJECT_DIR$/scheme.graphml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projector/views.py" afterPath="$PROJECT_DIR$/projector/views.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="0a7872f7-3d3e-4474-a0d7-c56c22309b47" name="Default" comment="" />
     <ignored path="tolk.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
