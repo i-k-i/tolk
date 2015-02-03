@@ -6,7 +6,8 @@ from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, Me
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
+from guardian.decorators import permission_required_or_403
+
 from django.core.exceptions import PermissionDenied
 
 from guardian.shortcuts import assign_perm
@@ -40,8 +41,7 @@ all_task_perms =(
 
 
 
-prcreator_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
-                         'project': ('create_task','view_project', 'edit_project', 'comment_project')}
+prcreator_perms = ('create_task','view_project', 'edit_project', 'comment_project')
 prworker_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
                         'project': ('create_task','view_project', 'comment_project')}
 
@@ -50,10 +50,6 @@ task_worker_perms = ('done_task', 'stop_task')
 
 worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
                 'project': ('view_project', 'comment_project')}
-
-def set_prcreator_perms(user, project):
-    for i in prcreator_perms['project']:
-        assign_perm(i, user, project)
 
 @login_required(login_url='/auth/login/')
 def projects(request):
@@ -76,12 +72,17 @@ def create_project(request):
             c.save()
 #            import pdb; pdb.set_trace()
             project = Project.objects.get(id=c.id)
+            ## permissions
             if not project.public:
                 group = '{}_pr_workers'.format(c.id)
                 Group.objects.create(name=group).save()
             else:
                 group = Group.objects.get(name='workers')
             assign_perm('view_project', group, project)
+            for i in prcreator_perms:
+                assign_perm(i, user, project)
+            user.groups.add(group)
+            ##
             loger(auth.get_user(request), 'created project',c.name, project=project)
             return HttpResponseRedirect('/projector/all')
     else:
@@ -93,6 +94,7 @@ def create_project(request):
     return render_to_response('create_project.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('view_project', (Project, 'id', 'project_id'))
 def project(request, project_id):
     project = Project.objects.get(id=project_id)
     args = {}
@@ -105,6 +107,7 @@ def project(request, project_id):
     return render_to_response('project.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('create_task', (Project, 'id', 'project_id'))
 def create_task(request, project_id ):
     pr = Project.objects.get(id=project_id)
     if request.POST:
@@ -115,6 +118,9 @@ def create_task(request, project_id ):
             c.project = pr
             c.save()
             form.save_m2m()
+
+##20150204
+
             loger(auth.get_user(request), 'task_created', c.name, c, pr)
             return HttpResponseRedirect('/projector/project/{}'.format(project_id))
     else:
@@ -128,6 +134,7 @@ def create_task(request, project_id ):
     return render_to_response('create_task.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('create_subtask', (Task, 'id', 'task_id'))
 def create_subtask(request, task_id):
     parent = Task.objects.get(id=task_id)
     pr = Project.objects.get(id=parent.project_id)
@@ -157,6 +164,7 @@ def create_subtask(request, task_id):
     return render_to_response('create_task.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('view_task', (Task, 'id', 'task_id'))
 def task_show(request, task_id):
     task = Task.objects.get(id=task_id)
     project = Project.objects.get(id=task.project.id)
@@ -187,6 +195,7 @@ def task_show(request, task_id):
 #@permission_required('accept_task')
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('accept_task', (Task, 'id', 'task_id'))
 def task_accept(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
@@ -207,6 +216,7 @@ def task_accept(request, task_id):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('accept_task', (Task, 'id', 'task_id'))
 def task_stop(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
@@ -222,6 +232,7 @@ def task_stop(request, task_id):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('done_task', (Task, 'id', 'task_id'))
 def task_done(request, task_id):
     task = Task.objects.get(id=task_id)
     user = auth.get_user(request)
@@ -241,6 +252,7 @@ def task_done(request, task_id):
     return HttpResponseRedirect('/projector/task/{}'.format(task_id))
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('return_task', (Task, 'id', 'task_id'))
 def task_return(request, task_id):
     task = Task.objects.get(id=task_id)
     user = auth.get_user(request)
@@ -253,6 +265,7 @@ def task_return(request, task_id):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('finish_task', (Task, 'id', 'task_id'))
 def task_finish(request, task_id):
     user = auth.get_user(request)
     task = Task.objects.get(id=task_id)
@@ -267,13 +280,15 @@ def task_finish(request, task_id):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required(login_url='/auth/login/')
-def all_tasks(reques):
+def all_tasks(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
     tasks = Task.objects.all()
 #    import pdb; pdb.set_trace()
     args={}
     args['tasks'] = tasks
-    args['username'] = auth.get_user(reques).username
-    loger(auth.get_user(reques), 'show_all_tasks', 'all_tasks')
+    args['username'] = auth.get_user(request).username
+    loger(auth.get_user(request), 'show_all_tasks', 'all_tasks')
     return render_to_response('all_tasks.html', args)
 
 @login_required(login_url='/auth/login/')
@@ -335,6 +350,7 @@ def tests_page(request):
     return render_to_response('tests_page.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('comment_task', (Task, 'id', 'task_id'))
 def task_comment(request, task_id):
     task = Task.objects.get(id=task_id)
     user = auth.get_user(request)
@@ -357,6 +373,7 @@ def task_comment(request, task_id):
     return render_to_response('task_comment.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('comment_project', (Project, 'id', 'project_id'))
 def project_comment(request, project_id):
     project = Project.objects.get(id=project_id)
     user = auth.get_user(request)
@@ -388,6 +405,7 @@ def welcome(request):
         return response
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('edit_task', (Task, 'id', 'task_id'))
 def task_edit(request, task_id ):
     task = Task.objects.get(id=task_id)
 #    import pdb; pdb.set_trace()
@@ -411,6 +429,7 @@ def task_edit(request, task_id ):
     return render_to_response('task_edit.html',args)
 
 @login_required(login_url='/auth/login/')
+@permission_required_or_403('edit_comment', (TaskComment, 'id', 'comment_id'))
 def comment_edit(request, comment_id):
     user = auth.get_user(request)
     comment = TaskComment.objects.get(id=comment_id)
@@ -435,6 +454,8 @@ def comment_edit(request, comment_id):
 
 @login_required(login_url='/auth/login/')
 def logs(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
     user = auth.get_user(request)
     logs = ProjectorLog.objects.all()
     args={}
