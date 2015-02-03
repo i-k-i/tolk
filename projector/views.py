@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
 
+from guardian.shortcuts import assign_perm
 from django.contrib.auth.models import User, Group
 
 def loger(user, message, object_name, task=None, project=None):
@@ -24,6 +25,7 @@ def project_status_change(project_id, status, user):
     c = ProjectComment(author=user, project_id=project_id, comment=status)
     c.save()
 
+
 all_task_perms =(
     'view_task',
     'accept_task',
@@ -38,10 +40,10 @@ all_task_perms =(
 
 
 
-project_creator_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
-                         'project': ('view_project', 'edit_project', 'comment_project')}
-project_worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
-                        'project': ('view_project', 'comment_project')}
+prcreator_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
+                         'project': ('create_task','view_project', 'edit_project', 'comment_project')}
+prworker_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
+                        'project': ('create_task','view_project', 'comment_project')}
 
 task_creator_perms = ('create_subtask','edit_task', 'finish_task', 'return_task')
 task_worker_perms = ('done_task', 'stop_task')
@@ -49,6 +51,9 @@ task_worker_perms = ('done_task', 'stop_task')
 worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
                 'project': ('view_project', 'comment_project')}
 
+def set_prcreator_perms(user, project):
+    for i in prcreator_perms['project']:
+        assign_perm(i, user, project)
 
 @login_required(login_url='/auth/login/')
 def projects(request):
@@ -62,15 +67,21 @@ def projects(request):
 
 @login_required(login_url='/auth/login/')
 def create_project(request):
+    user = request.user
     if request.POST:
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             c = form.save(commit=False)
-            c.author = request.user
+            c.author = user
             c.save()
 #            import pdb; pdb.set_trace()
             project = Project.objects.get(id=c.id)
-            Group.objects.create(name='{}_pr_workers'.format(c.id)).save()
+            if not project.public:
+                group = '{}_pr_workers'.format(c.id)
+                Group.objects.create(name=group).save()
+            else:
+                group = Group.objects.get(name='workers')
+            assign_perm('view_project', group, project)
             loger(auth.get_user(request), 'created project',c.name, project=project)
             return HttpResponseRedirect('/projector/all')
     else:

@@ -10,7 +10,7 @@ from nicedit.widgets import NicEditWidget
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ('name', 'description','deadline')
+        fields = ('name', 'description', 'deadline', 'public')
 
 class TaskForm(forms.ModelForm):
     #workers = forms.ModelMultipleChoiceField(queryset=User.objects.all())

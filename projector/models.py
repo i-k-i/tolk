@@ -26,6 +26,13 @@ class Project(models.Model):
     status = models.CharField(max_length=50, default='dreams')
     public = models.BooleanField(default=True)
 
+    class Meta:
+        permissions = (
+            ('view_project', 'View project'),
+            ('edit_project', 'Edit project'),
+            ('comment_project', 'Comment project'),
+            ('create_task', 'Create tasks')
+        )
     def __str__(self):
         return self.name
 
@@ -58,8 +65,6 @@ class Task(models.Model):
             ('comment_task', 'Comment task'),
             ('stop_task', 'Stop task'),
             ('return_task', 'Return task'),
-            ('delete_task', 'Delete task'),
-
         )
 
     def __unicode__(self):
