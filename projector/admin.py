@@ -1,5 +1,5 @@
 from django.contrib import admin
-from projector.models import Project, Task, ProjectorLog
+from projector.models import Project, Task, ProjectorLog, ProjectComment
 from guardian.admin import GuardedModelAdmin
 # from example_project.posts.models import Post
 
@@ -27,9 +27,13 @@ class TaskAdmin(GuardedModelAdmin):
     ordering = ('-create_date',)
     date_hierarchy = 'create_date'
 
+class ProjectCommentAdmin(GuardedModelAdmin):
+    pass
+
 admin.site.register(Task, TaskAdmin)
 
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(ProjectComment, ProjectCommentAdmin)
 
 
 

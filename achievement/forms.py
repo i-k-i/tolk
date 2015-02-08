@@ -1,5 +1,5 @@
 from django import forms
-from docutils.nodes import description
+#from docutils.nodes import description
 from models import Achievement, AchievementState
 
 class CreateAchievementForm(forms.ModelForm):

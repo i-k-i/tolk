@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 from django.http import HttpResponseRedirect, Http404
 from projector.models import Project, Task, TaskComment, ProjectComment, ProjectorLog
-from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, MessageForm, TaskDoneForm
+from forms import ProjectForm, TaskForm, TaskCommentForm, ProjectCommentForm, TaskDoneForm
 from django.contrib import auth
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,7 @@ from guardian.decorators import permission_required_or_403
 
 from django.core.exceptions import PermissionDenied
 
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 from django.contrib.auth.models import User, Group
 
 def loger(user, message, object_name, task=None, project=None):
@@ -42,14 +42,26 @@ all_task_perms =(
 
 
 prcreator_perms = ('create_task','view_project', 'edit_project', 'comment_project')
-prworker_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
-                        'project': ('create_task','view_project', 'comment_project')}
+# prworker_perms = {'task': ('view_task', 'comment_task', 'accept_task',),
+#                         'project': ('create_task','view_project', 'comment_project')}
 
 task_creator_perms = ('create_subtask','edit_task', 'finish_task', 'return_task')
 task_worker_perms = ('done_task', 'stop_task')
 
-worker_perms = {'task': ('create_task', 'view_task', 'comment_task', 'accept_task',),
-                'project': ('view_project', 'comment_project')}
+worker_perms = {'task': ( 'view_task', 'comment_task', 'accept_task',),
+                'project': ('create_task','view_project', 'comment_project')}
+
+def assign_newtask_perm(task, project, creator):
+            for i in task_creator_perms:
+                assign_perm(i,creator, task)
+            if project.public:
+                groupname = 'workers'
+            else:
+                groupname = '{}_pr_workers'.format(project.id)
+            group = Group.objects.get(name=groupname)
+            for i in worker_perms['task']:
+                assign_perm(i,group,task)
+
 
 @login_required(login_url='/auth/login/')
 def projects(request):
@@ -78,7 +90,8 @@ def create_project(request):
                 Group.objects.create(name=group).save()
             else:
                 group = Group.objects.get(name='workers')
-            assign_perm('view_project', group, project)
+            for i in worker_perms['project']:
+                assign_perm(i, group, project)
             for i in prcreator_perms:
                 assign_perm(i, user, project)
             user.groups.add(group)
@@ -110,17 +123,18 @@ def project(request, project_id):
 @permission_required_or_403('create_task', (Project, 'id', 'project_id'))
 def create_task(request, project_id ):
     pr = Project.objects.get(id=project_id)
+    user = request.user
     if request.POST:
         form = TaskForm(request.POST, request.FILES)
         if form.is_valid():
             c = form.save(commit=False)
-            c.creator = request.user
+            c.creator = user
             c.project = pr
             c.save()
             form.save_m2m()
-
-##20150204
-
+            ##permission
+            task=Task.objects.get(id=c.id)
+            assign_newtask_perm(task, pr, user)
             loger(auth.get_user(request), 'task_created', c.name, c, pr)
             return HttpResponseRedirect('/projector/project/{}'.format(project_id))
     else:
@@ -147,6 +161,8 @@ def create_subtask(request, task_id):
             c.parent_task = parent
             c.save()
             form.save_m2m()
+            task = Task.objects.get(id=c.id)
+            assign_newtask_perm(task, pr, request.user)
             loger(auth.get_user(request), 'task_created', c.name, c, pr)
 
             return HttpResponseRedirect('/projector/project/{}'.format(parent.project_id))
@@ -212,6 +228,9 @@ def task_accept(request, task_id):
         project.status = 'In work'
         project.save()
         project_status_change(project.id, project.status, user)
+    #permissions
+    for i in task_worker_perms:
+        assign_perm(i, user, task)
     loger(user, 'task_accept', task.name, task, project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
@@ -228,6 +247,9 @@ def task_stop(request, task_id):
         task.status = 'Freezed'
         task.save()
     task_status_change(task_id, task.status, user)
+    #permissions
+    for i in task_worker_perms:
+        remove_perm(i, user, task)
     loger(user, 'task_stop', task.name, task, task.project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
@@ -247,6 +269,9 @@ def task_done(request, task_id):
             task.status = 'Now check'
             task.save()
             task_status_change(task_id, task.status, auth.get_user(request))
+            #permissions
+            for i in task_worker_perms:
+                remove_perm(i, user, task)
             loger(user, 'task_done', task.name, task, task.project)
             return HttpResponseRedirect('/projector/task/{}'.format(task_id))
     return HttpResponseRedirect('/projector/task/{}'.format(task_id))
@@ -261,6 +286,9 @@ def task_return(request, task_id):
     task.status = 'Returned for revision'
     task.save()
     task_status_change(task_id, task.status, user)
+    #permissions
+    for i in task_worker_perms:
+        assign_perm(i, user, task)
     loger(user, 'task_return', task.name, task, task.project)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
@@ -361,6 +389,8 @@ def task_comment(request, task_id):
             c.task = task
             c.author = user
             c.save()
+            comment=ProjectComment.objects.get(id=c.id)
+            assign_perm('change_taskcomment', user, comment)
             loger(user, u'write comment: {}'.format(c.comment), task.name, task, task.project)
             return HttpResponseRedirect('/projector/task/{}'.format(task_id))
     else:
@@ -384,6 +414,7 @@ def project_comment(request, project_id):
             c.project = project
             c.author = user
             c.save()
+            assign_perm('change_projectcomment', user, c)
             loger(user, u'write comment: {}'.format(c.comment), project.name, project=project)
             return HttpResponseRedirect('/projector/project/{}'.format(project_id))
     else:
@@ -429,7 +460,7 @@ def task_edit(request, task_id ):
     return render_to_response('task_edit.html',args)
 
 @login_required(login_url='/auth/login/')
-@permission_required_or_403('edit_comment', (TaskComment, 'id', 'comment_id'))
+@permission_required_or_403('change_taskcomment', (TaskComment, 'id', 'comment_id'))
 def comment_edit(request, comment_id):
     user = auth.get_user(request)
     comment = TaskComment.objects.get(id=comment_id)

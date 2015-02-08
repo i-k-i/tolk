@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'projector',
     'taggit',
-    'south',
+#    'south',
     'loginsys',
 ##    'filer',
 ##    'easy_thumbnails',
@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'userena',
     'accounts',
     'achievement',
-     'django.contrib.sites', # [ERR] userena activation require
+    'django.contrib.sites', # [ERR] userena activation require
 
 
 )
@@ -69,7 +69,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ##
-    'mlogger.middleware.CurrentUserMiddleware',
+##    'mlogger.middleware.CurrentUserMiddleware',
 )
 
 ROOT_URLCONF = 'tolk.urls'

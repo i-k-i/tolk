@@ -1,152 +1,120 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import redactor.fields
+from django.conf import settings
+import taggit.managers
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Project'
-        db.create_table(u'projector_project', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='2014-09-23 14:37:20.745851+00:00', max_length=200)),
-            ('startdate', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('deadline', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('description', self.gf('django.db.models.fields.TextField')(default='Just one more thing')),
-            ('status', self.gf('django.db.models.fields.CharField')(default='dreams', max_length=50)),
-        ))
-        db.send_create_signal(u'projector', ['Project'])
+    dependencies = [
+        ('taggit', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-        # Adding model 'Task'
-        db.create_table(u'projector_task', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('startdate', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 9, 23, 0, 0))),
-            ('status', self.gf('django.db.models.fields.CharField')(default='dreams', max_length=50)),
-            ('expected_time', self.gf('django.db.models.fields.TimeField')()),
-            ('real_time', self.gf('django.db.models.fields.TimeField')()),
-        ))
-        db.send_create_signal(u'projector', ['Task'])
-
-        # Adding M2M table for field workers on 'Task'
-        m2m_table_name = db.shorten_name(u'projector_task_workers')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('task', models.ForeignKey(orm[u'projector.task'], null=False)),
-            ('user', models.ForeignKey(orm[u'auth.user'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['task_id', 'user_id'])
-
-        # Adding model 'PrComments'
-        db.create_table(u'projector_prcomments', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projector.Project'])),
-        ))
-        db.send_create_signal(u'projector', ['PrComments'])
-
-        # Adding model 'TaskComment'
-        db.create_table(u'projector_taskcomment', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 9, 23, 0, 0))),
-            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projector.Task'])),
-        ))
-        db.send_create_signal(u'projector', ['TaskComment'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Project'
-        db.delete_table(u'projector_project')
-
-        # Deleting model 'Task'
-        db.delete_table(u'projector_task')
-
-        # Removing M2M table for field workers on 'Task'
-        db.delete_table(db.shorten_name(u'projector_task_workers'))
-
-        # Deleting model 'PrComments'
-        db.delete_table(u'projector_prcomments')
-
-        # Deleting model 'TaskComment'
-        db.delete_table(u'projector_taskcomment')
-
-
-    models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'projector.prcomments': {
-            'Meta': {'object_name': 'PrComments'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['projector.Project']"})
-        },
-        u'projector.project': {
-            'Meta': {'object_name': 'Project'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'deadline': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'default': "'Just one more thing'"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'default': "'2014-09-23 14:37:20.745851+00:00'", 'max_length': '200'}),
-            'startdate': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'dreams'", 'max_length': '50'})
-        },
-        u'projector.task': {
-            'Meta': {'object_name': 'Task'},
-            'expected_time': ('django.db.models.fields.TimeField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'real_time': ('django.db.models.fields.TimeField', [], {}),
-            'startdate': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 9, 23, 0, 0)'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'dreams'", 'max_length': '50'}),
-            'workers': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'symmetrical': 'False'})
-        },
-        u'projector.taskcomment': {
-            'Meta': {'object_name': 'TaskComment'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 9, 23, 0, 0)'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'task': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['projector.Task']"})
-        }
-    }
-
-    complete_apps = ['projector']
+    operations = [
+        migrations.CreateModel(
+            name='Project',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(default=b'2015-02-08 14:43:21.221355+00:00', max_length=200)),
+                ('startdate', models.DateTimeField(auto_now_add=True)),
+                ('deadline', models.DateTimeField(null=True, blank=True)),
+                ('description', models.TextField(default=b'Just one more thing')),
+                ('status', models.CharField(default=b'dreams', max_length=50)),
+                ('public', models.BooleanField(default=True)),
+                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'permissions': (('view_project', 'View project'), ('edit_project', 'Edit project'), ('comment_project', 'Comment project'), ('create_task', 'Create tasks')),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ProjectComment',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('date', models.DateTimeField(auto_now_add=True)),
+                ('comment', models.TextField(default=b'')),
+                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('project', models.ForeignKey(to='projector.Project')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ProjectorLog',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('action_time', models.DateTimeField(auto_now_add=True)),
+                ('message', models.TextField()),
+                ('object_name', models.CharField(max_length=200)),
+                ('project', models.ForeignKey(blank=True, to='projector.Project', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Skills',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Task',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=200)),
+                ('start_date', models.DateTimeField(null=True, blank=True)),
+                ('create_date', models.DateTimeField(auto_now_add=True, null=True)),
+                ('status', models.CharField(default=b'dreams', max_length=50)),
+                ('expected_time', models.TimeField(null=True, blank=True)),
+                ('finish_date', models.DateTimeField(null=True, blank=True)),
+                ('location', models.CharField(default=b'earth', max_length=200)),
+                ('description', models.TextField(default=b'to do', max_length=600)),
+                ('deadline', models.DateTimeField(null=True, blank=True)),
+                ('digress', models.PositiveIntegerField(null=True, blank=True)),
+                ('creator', models.ForeignKey(related_name='creator', default=1, to=settings.AUTH_USER_MODEL)),
+                ('parent_task', models.ForeignKey(related_name='subtask', blank=True, to='projector.Task', null=True)),
+                ('project', models.ForeignKey(to='projector.Project')),
+                ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
+                ('workers', models.ManyToManyField(related_name='workers', null=True, to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'permissions': (('view_task', 'View task'), ('accept_task', 'Accept task'), ('done_task', 'Done task'), ('finish_task', 'Finish task'), ('create_subtask', 'Create subtask'), ('edit_task', 'Edit task'), ('comment_task', 'Comment task'), ('stop_task', 'Stop task'), ('return_task', 'Return task')),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TaskComment',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('date', models.DateTimeField(auto_now_add=True)),
+                ('comment', redactor.fields.RedactorField()),
+                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('task', models.ForeignKey(to='projector.Task')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='projectorlog',
+            name='task',
+            field=models.ForeignKey(blank=True, to='projector.Task', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='projectorlog',
+            name='user',
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+    ]

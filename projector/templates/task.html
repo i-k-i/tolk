@@ -34,7 +34,10 @@
                     {% for worker in task.workers.all %}
                         {{ worker }}
                     {% endfor %}</td>
-                <td>{{ task.tags }}</td>
+                <td>{% for tag in task.tags.all %}
+                    {{ tag }}
+                    {% endfor %}
+                </td>
 
             </tr>
             </tbody>
@@ -44,8 +47,14 @@
         <p>Created: {{ task.create_date }} </p>
         <p>Started: {{ task.start_date }}</p>
         <p>Status: {{task.status }}</p>
-        <p>Parent task: {{ task.parent_task.name }}</p>
-        <p>Subtask: {{ task.subtask }}</p>
+        <p>Parent task: {% if task.parent_task %}
+            <a href="{% url 'task' task.parent_task.id %}">{{ task.parent_task.name }}</a>
+            {% endif %}
+        </p>
+        <p>Subtask: {% for task in task.subtask.all %}
+            <a href="{% url 'task' task.id %}" class="underline" >{{ task.name }}</a>
+            {% endfor %}
+        </p>
         <p>Finished: {{ task.finish_date }} </p>
         <p>Expected time:{{ task.expected_time }} </p>
         <p>Real time: {{ real_time }}</p>

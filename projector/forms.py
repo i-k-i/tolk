@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from django.contrib.admin import widgets
 
-from nicedit.widgets import NicEditWidget
+# from nicedit.widgets import NicEditWidget
 
 
 class ProjectForm(forms.ModelForm):
@@ -32,9 +32,9 @@ class ProjectCommentForm(forms.ModelForm):
         model = ProjectComment
         fields = ('comment', )
 
-class MessageForm(forms.Form):
-    message = forms.CharField(
-            widget=NicEditWidget(attrs={'style': 'width: 800px;'}))
+# class MessageForm(forms.Form):
+#     message = forms.CharField(
+#             widget=NicEditWidget(attrs={'style': 'width: 800px;'}))
 
 #class TaskDoneForm(forms.Form):
 #    digress = forms.IntegerField()

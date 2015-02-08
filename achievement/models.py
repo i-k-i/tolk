@@ -1,4 +1,4 @@
-from libxslt import extensionModule
+#from libxslt import extensionModule
 from django.db import models
 from django.contrib.auth.models import User
 from easy_thumbnails.fields import ThumbnailerImageField

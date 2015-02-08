@@ -5,8 +5,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from taggit.managers import TaggableManager
-from filer.fields.image import FilerImageField
-from datetime import datetime
+#from filer.fields.image import FilerImageField
+#from datetime import datetime
 from redactor.fields import RedactorField
 from time import time
 
