@@ -26,7 +26,7 @@
         comments:
         <br>
     {% for comment in project.projectcomment_set.all %}
-        {{ username }} at {{ comment.date }}
+        {{ comment.author }} at {{ comment.date }}
         <div>{{ comment.comment }}</div>
     {% endfor %}
     {% endif %}

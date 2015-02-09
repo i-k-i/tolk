@@ -86,6 +86,9 @@ class TaskComment(models.Model):
     task = models.ForeignKey(Task)
     comment = RedactorField()
 
+    def __unicode__(self):
+        return u'{} | {}'.format(self.task.name,self.comment)
+
 class ProjectorLog(models.Model):
     action_time = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)

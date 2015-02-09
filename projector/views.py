@@ -51,16 +51,26 @@ task_worker_perms = ('done_task', 'stop_task')
 worker_perms = {'task': ( 'view_task', 'comment_task', 'accept_task',),
                 'project': ('create_task','view_project', 'comment_project')}
 
+def assign_project_perms(group, project):
+    pass
+
 def assign_newtask_perm(task, project, creator):
-            for i in task_creator_perms:
-                assign_perm(i,creator, task)
-            if project.public:
-                groupname = 'workers'
-            else:
-                groupname = '{}_pr_workers'.format(project.id)
-            group = Group.objects.get(name=groupname)
-            for i in worker_perms['task']:
-                assign_perm(i,group,task)
+    '''Assign permissions to a new task
+
+    :param task: class 'projector.models.Task'
+    :param project: class 'projector.models.Project'
+    :param creator: class 'django.contrib.auth.models.User'
+    :return: nothing
+    '''
+    for i in task_creator_perms:
+        assign_perm(i,creator, task)
+    if project.public:
+        groupname = 'workers'
+    else:
+        groupname = '{}_pr_workers'.format(project.id)
+    group = Group.objects.get(name=groupname)
+    for i in worker_perms['task']:
+        assign_perm(i,group,task)
 
 
 @login_required(login_url='/auth/login/')
@@ -389,7 +399,7 @@ def task_comment(request, task_id):
             c.task = task
             c.author = user
             c.save()
-            comment=ProjectComment.objects.get(id=c.id)
+            comment = TaskComment.objects.get(id=c.id)
             assign_perm('change_taskcomment', user, comment)
             loger(user, u'write comment: {}'.format(c.comment), task.name, task, task.project)
             return HttpResponseRedirect('/projector/task/{}'.format(task_id))

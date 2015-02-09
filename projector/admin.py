@@ -1,5 +1,5 @@
 from django.contrib import admin
-from projector.models import Project, Task, ProjectorLog, ProjectComment
+from projector.models import Project, Task, ProjectorLog, ProjectComment, TaskComment
 from guardian.admin import GuardedModelAdmin
 # from example_project.posts.models import Post
 
@@ -30,10 +30,13 @@ class TaskAdmin(GuardedModelAdmin):
 class ProjectCommentAdmin(GuardedModelAdmin):
     pass
 
-admin.site.register(Task, TaskAdmin)
+class TaskCommentAdmin(GuardedModelAdmin):
+    pass
 
+admin.site.register(Task, TaskAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ProjectComment, ProjectCommentAdmin)
+admin.site.register(TaskComment, TaskCommentAdmin)
 
 
 

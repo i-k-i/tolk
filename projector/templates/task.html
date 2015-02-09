@@ -73,7 +73,7 @@
                 <h3>comments:</h3>
                 <br>
                 {% for comment in task.taskcomment_set.all %}
-                    {{ username }} at {{ comment.date }}
+                    {{ comment.author }} at {{ comment.date }}
                     <div>
                         {{ comment.comment|unscript|safe }}
                     </div>
