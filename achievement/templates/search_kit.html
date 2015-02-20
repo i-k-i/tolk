@@ -1,0 +1,7 @@
+{% if achievement_kits.count > 0 %}
+    {% for kit in achievement_kits %}
+        <li>{{ kit }}</li>
+    {% endfor %}
+{% else %}
+    <li>None to show </li>
+{% endif %}

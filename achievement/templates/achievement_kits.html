@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>Search kit</h3>
+    {% csrf_token %}
+    <input type="text" id="search_achievement_kit" name="search kit">
+    <ul id="search_kit_results">
+
+    </ul>
+{% endblock content %}
