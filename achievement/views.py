@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
-from achievement.models import Achievement, AchievementLogs, AchievementState
+from achievement.models import Achievement, AchievementLogs, AchievementState, AchievementKit
 from forms import CreateAchievementForm, NewAchievementFrom
 from django.shortcuts import redirect
 from django.core.context_processors import csrf
@@ -84,4 +84,17 @@ def achievements_user(request, user_id):
     args['achievements'] = achievements
     args['user'] = user
     return render_to_response('achievements_user.html', args)
+
+def search_kit(request):
+    if request.method == 'POST':
+        search_text = request.POST['search_text']
+    else:
+        search_text = ''
+    kits = AchievementKit.objects.filter(name__contains=search_text)
+    return render_to_response('search_kit.html', {'achievement_kits':kits})
+
+def kits(request):
+    args = {}
+    args.update(csrf(request))
+    return render_to_response('achievement_kits.html',args)
 

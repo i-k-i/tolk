@@ -3,14 +3,13 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-
 from taggit.managers import TaggableManager
-#from filer.fields.image import FilerImageField
-#from datetime import datetime
 from redactor.fields import RedactorField
 from time import time
-
 from django.utils.encoding import python_2_unicode_compatible
+
+from achievement.models import AchievementKit
+
 
 def get_upload_file_name(instace, filename):
     print instace, filename
@@ -38,7 +37,7 @@ class Project(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=200)
-    creator = models.ForeignKey(User,related_name='creator', default=1)
+    creator = models.ForeignKey(User, related_name='creator', default=1)
     start_date = models.DateTimeField(blank=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, default='dreams')
@@ -53,6 +52,8 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)
     parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtask')
     digress = models.PositiveIntegerField(blank=True, null=True) # in seconds; if useful: change other TimeFields
+    achievements = models.ForeignKey(AchievementKit, null=True)
+
 
     class Meta:
         permissions = (
@@ -87,7 +88,7 @@ class TaskComment(models.Model):
     comment = RedactorField()
 
     def __unicode__(self):
-        return u'{} | {}'.format(self.task.name,self.comment)
+        return u'{} | {}'.format(self.task.name, self.comment)
 
 class ProjectorLog(models.Model):
     action_time = models.DateTimeField(auto_now_add=True)

@@ -43,3 +43,11 @@ class AchievementLogs(models.Model):
 
     def get_achievement_name(self):
         return u'{}'.format(self.achievement.name)
+
+class AchievementKit(models.Model):
+    name = models.CharField(max_length=100)
+    user = models.ForeignKey(User)
+    achievements = models.ManyToManyField(Achievement, null=True)
+
+    def __unicode__(self):
+        return u'{}'.format(self.name)

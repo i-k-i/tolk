@@ -7,5 +7,7 @@ urlpatterns = patterns('',
     url(r'^log/$', 'achievement.views.achievement_log', name = 'achievement_log'),
     url(r'^user/(?P<user_id>\d+)/$', 'achievement.views.achievements_user', name = 'achievements_user'),
     url(r'^new/$', 'achievement.views.achievement_new', name='achievement_new'),
+    url(r'^search_kit/$', 'achievement.views.search_kit', name='search_kit'),
+    url(r'^kits/$', 'achievement.views.kits', name='achievement_kits'),
 
 )

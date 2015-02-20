@@ -38,5 +38,21 @@ $(document).ready(function() {
 //    });
 //
 });
+$(function(){
+    $('#search_achievement_kit').keyup(function(){
+        $.ajax({
+            type: "POST",
+            url: "/achievement/search_kit/",
+            data:{
+                'search_text':$('#search_achievement_kit').val(),
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()
+            },
+            success: searchSuccess,
+            dataType: 'html'
+        });
+    });
+});
 
-
+function searchSuccess(data, textStatus, jqXHR) {
+    $('#search_kit_results').html(data);
+}
