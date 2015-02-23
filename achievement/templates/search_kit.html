@@ -1,6 +1,14 @@
 {% if achievement_kits.count > 0 %}
-    {% for kit in achievement_kits %}
-        <li>{{ kit }}</li>
+    {% for kit in achievement_kits%}
+        <li>{{ kit }}
+        <hr>
+        {% for achiev in kit.achievements.all %}
+                    <a href="{% url 'achievement_show' achiev.id %}">
+                        <img src="/media/{{ achiev.image }}" alt="{{ achiev.name }}" title="{{ achiev.name }}" height="100" width="100">
+                    </a>
+        {% endfor %}
+        <hr>
+        </li>
     {% endfor %}
 {% else %}
     <li>None to show </li>
