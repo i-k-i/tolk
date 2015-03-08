@@ -45,9 +45,15 @@ class AchievementLogs(models.Model):
         return u'{}'.format(self.achievement.name)
 
 class AchievementKit(models.Model):
+    ''' TODO: for every users'''
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User)
-    achievements = models.ManyToManyField(Achievement, null=True)
-
+    #achievements = models.ManyToManyField(Achievement, null=True)
+    #achievements =
     def __unicode__(self):
         return u'{}'.format(self.name)
+
+class QuantityAchievements(models.Model):
+    kit = models.ForeignKey(AchievementKit)
+    achievement = models.ForeignKey(Achievement)
+    quantity = models.IntegerField(default=1)

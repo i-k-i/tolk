@@ -1,3 +1,8 @@
+# ##profiling.tmp
+# import hotshot
+# prof = hotshot.Profile("projector.prof")
+# prof.start()
+##code
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 from django.http import HttpResponseRedirect, Http404
@@ -92,28 +97,32 @@ def create_project(request):
             c = form.save(commit=False)
             c.author = user
             c.save()
-#            import pdb; pdb.set_trace()
+            #            import pdb; pdb.set_trace()
             project = Project.objects.get(id=c.id)
             ## permissions
             if not project.public:
                 group = '{}_pr_workers'.format(c.id)
-                Group.objects.create(name=group).save()
+                group = Group.objects.create(name=group)
+                group.save()
             else:
                 group = Group.objects.get(name='workers')
+#            import pdb; pdb.set_trace()
             for i in worker_perms['project']:
                 assign_perm(i, group, project)
             for i in prcreator_perms:
                 assign_perm(i, user, project)
             user.groups.add(group)
-            ##
             loger(auth.get_user(request), 'created project',c.name, project=project)
             return HttpResponseRedirect('/projector/all')
     else:
         form = ProjectForm()
+     #   import pdb; pdb.set_trace()
+        #form['deadline'] = '111'
+
     args = {}
+    args['username'] = auth.get_user(request).username
     args.update(csrf(request))
     args['form'] = form
-#    import pdb; pdb.set_trace()
     return render_to_response('create_project.html',args)
 
 @login_required(login_url='/auth/login/')
@@ -503,3 +512,9 @@ def logs(request):
     args['username']=user.username
     args['logs']=logs
     return render_to_response('logs.html', args)
+
+##profiler.tail
+
+#prof.stop()
+#prof.close()
+##profiler.end
